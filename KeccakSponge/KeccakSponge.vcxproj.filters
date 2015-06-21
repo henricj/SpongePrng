@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\KeccakF-1600">
+      <UniqueIdentifier>{c717fb54-654e-4b27-94b9-e746385e8db0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\KeccakF-1600">
+      <UniqueIdentifier>{d65b7a2d-bcc9-46b8-970e-dae561c9480e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ChaCha">
+      <UniqueIdentifier>{85a1080f-b841-4d85-8760-08e7f5566525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ChaCha">
+      <UniqueIdentifier>{a522ab05-de5f-42dd-9d30-f0b018ae56c9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\KeccakF-1600-interface.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\KeccakF-1600-opt64-settings.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\brg_endian.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\SnP.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\SnP-FBWL-default.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\SnP-interface.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="KeccakF-1600\SnP-Relaned.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
+    <ClInclude Include="Keccak1600.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChaCha\ecrypt-sync.h">
+      <Filter>Header Files\ChaCha</Filter>
+    </ClInclude>
+    <ClInclude Include="ChaCha20.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeccakF-1600\KeccakF-1600-opt64.c">
+      <Filter>Source Files\KeccakF-1600</Filter>
+    </ClCompile>
+    <ClCompile Include="KeccakF-1600\KeccakSponge.c">
+      <Filter>Source Files\KeccakF-1600</Filter>
+    </ClCompile>
+    <ClCompile Include="Keccak1600.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChaCha\chacha.c">
+      <Filter>Source Files\ChaCha</Filter>
+    </ClCompile>
+    <ClCompile Include="ChaCha20.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KeccakF-1600\KeccakF-1600-unrolling.macros">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </None>
+    <None Include="KeccakF-1600\KeccakF-1600-64.macros">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </None>
+    <None Include="KeccakF-1600\KeccakF-1600-64.macros">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </None>
+    <None Include="KeccakF-1600\KeccakF-1600-unrolling.macros">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </None>
+  </ItemGroup>
+</Project>

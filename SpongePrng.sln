@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpongePrng", "SpongePrng\SpongePrng.csproj", "{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpongeConsole", "SpongeConsole\SpongeConsole.csproj", "{66610DD1-5D6C-418E-8E1E-E99206689E9F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeccakSponge", "KeccakSponge\KeccakSponge.vcxproj", "{0B8AB731-2B8F-4420-B349-BBA182AE7684}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Debug|x64.ActiveCfg = Debug|x64
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Debug|x64.Build.0 = Debug|x64
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Debug|x86.ActiveCfg = Debug|x86
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Debug|x86.Build.0 = Debug|x86
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Release|x64.ActiveCfg = Release|x64
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Release|x64.Build.0 = Release|x64
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Release|x86.ActiveCfg = Release|x86
+		{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}.Release|x86.Build.0 = Release|x86
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Debug|x64.ActiveCfg = Debug|x64
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Debug|x64.Build.0 = Debug|x64
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Debug|x86.ActiveCfg = Debug|x86
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Debug|x86.Build.0 = Debug|x86
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Release|x64.ActiveCfg = Release|x64
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Release|x64.Build.0 = Release|x64
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Release|x86.ActiveCfg = Release|x86
+		{66610DD1-5D6C-418E-8E1E-E99206689E9F}.Release|x86.Build.0 = Release|x86
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Debug|x64.ActiveCfg = Debug|x64
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Debug|x64.Build.0 = Debug|x64
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Debug|x86.ActiveCfg = Debug|Win32
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Debug|x86.Build.0 = Debug|Win32
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Release|x64.ActiveCfg = Release|x64
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Release|x64.Build.0 = Release|x64
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Release|x86.ActiveCfg = Release|Win32
+		{0B8AB731-2B8F-4420-B349-BBA182AE7684}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

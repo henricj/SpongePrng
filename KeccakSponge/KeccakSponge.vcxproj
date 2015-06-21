@@ -140,6 +140,7 @@
     <ClInclude Include="Keccak1600.h" />
     <ClInclude Include="KeccakF-1600\KeccakF-1600-interface.h" />
     <ClInclude Include="KeccakF-1600\KeccakF-1600-opt64-settings.h" />
+    <ClInclude Include="KeccakF-1600\KeccakSponge.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="KeccakF-1600\SnP-FBWL-default.h" />
     <ClInclude Include="KeccakF-1600\SnP-interface.h" />

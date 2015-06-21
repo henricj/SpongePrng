@@ -63,6 +63,9 @@
     <ClInclude Include="ChaCha20.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KeccakF-1600\KeccakSponge.h">
+      <Filter>Header Files\KeccakF-1600</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">

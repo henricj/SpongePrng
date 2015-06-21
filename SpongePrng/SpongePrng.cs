@@ -14,7 +14,12 @@ namespace SpongePrng
         const int PoolCount = 27;
         const int RngReseedBytes = 16 * 1024 * 1024;
 
-        readonly object _accumulatorLock = new object(); // Do not acquire the accumulator lock while holding the extractor lock.
+        // Lock order (don't acquire lock N when holding any locks > N)
+        //    1. accumulator
+        //    2. schedule
+        //    3. rng
+
+        readonly object _accumulatorLock = new object();
         readonly SpongeExtractor[] _extractors = new SpongeExtractor[PoolCount];
         readonly ChaCha20 _rng = new ChaCha20();
         readonly object _rngLock = new object();

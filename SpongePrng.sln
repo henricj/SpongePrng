@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpongePrng", "SpongePrng\SpongePrng.csproj", "{CB6E8DD0-A349-49FE-9E1D-7985BFB4C38C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpongeConsole", "SpongeConsole\SpongeConsole.csproj", "{66610DD1-5D6C-418E-8E1E-E99206689E9F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeccakSponge", "KeccakSponge\KeccakSponge.vcxproj", "{0B8AB731-2B8F-4420-B349-BBA182AE7684}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F7FC0A6A-BB0B-4A34-8063-F8B48E259EC6}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -23,23 +23,23 @@ using Keccak;
 
 namespace SpongePrng
 {
-    public sealed class SpongeGenerator : IDisposable
+    public sealed class SpongeGenerator : IPrng
     {
-        readonly SpongePrng _parentPrng;
+        readonly IPrng _parent;
         readonly int _reseedInterval;
         readonly byte[] _seed;
         readonly Keccak1600Sponge _sponge;
         int _remaining;
 
-        public SpongeGenerator(SpongePrng sponge, int bitCapacity, int reseedInterval = 32 * 1024)
+        public SpongeGenerator(IPrng parent, int bitCapacity, int reseedInterval = 32 * 1024)
         {
-            if (null == sponge)
-                throw new ArgumentNullException("sponge");
+            if (null == parent)
+                throw new ArgumentNullException("parent");
 
             if (reseedInterval < 256)
                 reseedInterval = 256;
 
-            _parentPrng = sponge;
+            _parent = parent;
             _reseedInterval = reseedInterval;
 
             _seed = new byte[bitCapacity / 8];
@@ -52,16 +52,18 @@ namespace SpongePrng
             _sponge.Dispose();
         }
 
-        public void GetBytes(byte[] buffer, int offset, int length)
+        public int Read(byte[] buffer, int offset, int length)
         {
             if (length < 1)
-                return;
+                return 0;
+
+            var remaining = length;
 
             try
             {
-                while (length > 0)
+                while (remaining > 0)
                 {
-                    var blockLength = Math.Min(length, _remaining);
+                    var blockLength = Math.Min(remaining, _remaining);
 
                     if (blockLength < 1)
                     {
@@ -73,7 +75,7 @@ namespace SpongePrng
                     _sponge.Squeeze(buffer, offset, blockLength);
 
                     offset += blockLength;
-                    length -= blockLength;
+                    remaining -= blockLength;
                     _remaining -= blockLength;
                 }
             }
@@ -81,13 +83,15 @@ namespace SpongePrng
             {
                 _sponge.IrreversibleReabsorb(_seed);
             }
+
+            return length;
         }
 
         public void Reseed()
         {
             _sponge.Reabsorb();
 
-            var length = _parentPrng.GetEntropy(_seed, 0, _seed.Length);
+            var length = _parent.Read(_seed, 0, _seed.Length);
 
             if (length < _seed.Length && 2 * 8 * length < _sponge.Capacity)
                 throw new InvalidOperationException("Unable to get seed");

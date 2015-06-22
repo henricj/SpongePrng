@@ -55,11 +55,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChaCha20Generator.cs" />
+    <Compile Include="IEntropyExtractor.cs" />
+    <Compile Include="IPrng.cs" />
     <Compile Include="KeccakExtensions.cs" />
     <Compile Include="SpongeExtractor.cs" />
-    <Compile Include="SpongePrng.cs" />
+    <Compile Include="SpongeAccumulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpongeGenerator.cs" />
+    <Compile Include="SpongePrng.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KeccakSponge\KeccakSponge.vcxproj">

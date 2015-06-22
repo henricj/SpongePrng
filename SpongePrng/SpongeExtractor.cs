@@ -23,7 +23,7 @@ using Keccak;
 
 namespace SpongePrng
 {
-    public sealed class SpongeExtractor : IDisposable
+    public sealed class SpongeExtractor : IEntropyExtractor
     {
         const int Capacity = (int)Keccak1600Sponge.BitCapacity.Security256 / 8;
 
@@ -63,13 +63,13 @@ namespace SpongePrng
             }
         }
 
-        public void AddEntropy(byte[] data, int offset, int length)
+        public void AddEntropy(byte[] entropy, int offset, int length)
         {
             lock (_lock)
             {
                 ++_addCount;
 
-                _sponge.Absorb(data, offset, length);
+                _sponge.Absorb(entropy, offset, length);
             }
         }
 
@@ -94,6 +94,14 @@ namespace SpongePrng
             _sponge.Reabsorb();
 
             _sponge.Absorb(countBuffer, 0, countBuffer.Length);
+        }
+    }
+
+    public sealed class SpongeExtractorFactory : IEntropyExtractorFactory
+    {
+        public IEntropyExtractor Create(byte[] key, int offset, int length)
+        {
+            return new SpongeExtractor(key,offset, length);
         }
     }
 }

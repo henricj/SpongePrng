@@ -23,24 +23,24 @@ using Keccak;
 
 namespace SpongePrng
 {
-    public sealed class ChaCha20Generator : IDisposable
+    public sealed class ChaCha20Generator : IPrng
     {
         readonly ChaCha20 _chaCha20 = new ChaCha20();
+        readonly IPrng _parent;
         readonly int _reseedInterval;
         readonly byte[] _seed = new byte[256 / 8];
-        readonly SpongePrng _sponge;
         bool _isInitialized;
         int _remaining;
 
-        public ChaCha20Generator(SpongePrng sponge, int reseedInterval = 4 * 1024 * 1024)
+        public ChaCha20Generator(IPrng parent, int reseedInterval = 4 * 1024 * 1024)
         {
-            if (null == sponge)
-                throw new ArgumentNullException("sponge");
+            if (null == parent)
+                throw new ArgumentNullException("parent");
 
             if (reseedInterval < 256)
                 reseedInterval = 256;
 
-            _sponge = sponge;
+            _parent = parent;
             _reseedInterval = reseedInterval;
         }
 
@@ -49,10 +49,10 @@ namespace SpongePrng
             _chaCha20.Dispose();
         }
 
-        public void GetBytes(byte[] buffer, int offset, int length)
+        public int Read(byte[] buffer, int offset, int length)
         {
             if (length < 1)
-                return;
+                return 0;
 
             while (length > 0)
             {
@@ -77,11 +77,13 @@ namespace SpongePrng
             _chaCha20.Initialize(_seed, 0, _seed.Length);
 
             Array.Clear(_seed, 0, _seed.Length);
+
+            return length;
         }
 
         public void Reseed()
         {
-            var length = _sponge.GetEntropy(_seed, 0, _seed.Length);
+            var length = _parent.Read(_seed, 0, _seed.Length);
 
             if (_isInitialized)
             {

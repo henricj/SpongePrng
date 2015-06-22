@@ -166,7 +166,7 @@ namespace SpongeConsole
                                                    var outputBuffer = new byte[64];
 
                                                    for (var i = 0; i < 1 * 256; ++i)
-                                                       spongePrng.GetEntropy(outputBuffer, 0, outputBuffer.Length);
+                                                       spongePrng.Read(outputBuffer, 0, outputBuffer.Length);
                                                });
 
                             Console.WriteLine("Get Done: " + n);
@@ -179,7 +179,7 @@ namespace SpongeConsole
                         var buffer = new byte[8 * 1024];
 
                         for (var i = 0; i < 100; ++i)
-                            fast.GetBytes(buffer, 0, buffer.Length);
+                            fast.Read(buffer, 0, buffer.Length);
                     }
 
                     using (var slow = spongePrng.CreateSlowPrng())
@@ -187,7 +187,7 @@ namespace SpongeConsole
                         var buffer = new byte[8 * 1024];
 
                         for (var i = 0; i < 100; ++i)
-                            slow.GetBytes(buffer, 0, buffer.Length);
+                            slow.Read(buffer, 0, buffer.Length);
                     }
 
                     Console.WriteLine("Done");

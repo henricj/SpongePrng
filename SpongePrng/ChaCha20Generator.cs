@@ -29,6 +29,7 @@ namespace SpongePrng
         readonly int _reseedInterval;
         readonly byte[] _seed = new byte[256 / 8];
         readonly SpongePrng _sponge;
+        bool _isInitialized;
         int _remaining;
 
         public ChaCha20Generator(SpongePrng sponge, int reseedInterval = 4 * 1024 * 1024)
@@ -70,13 +71,30 @@ namespace SpongePrng
                 length -= blockLength;
                 _remaining -= blockLength;
             }
+
+            _chaCha20.GetKeystream(_seed, 0, _seed.Length);
+
+            _chaCha20.Initialize(_seed, 0, _seed.Length);
+
+            Array.Clear(_seed, 0, _seed.Length);
         }
 
         public void Reseed()
         {
             var length = _sponge.GetEntropy(_seed, 0, _seed.Length);
 
+            if (_isInitialized)
+            {
+                // This assumes that the encryption function behaves itself when
+                // the input and output buffers are the same.
+                _chaCha20.Encrypt(_seed, 0, _seed, 0, _seed.Length);
+            }
+
             _chaCha20.Initialize(_seed, 0, length);
+
+            _isInitialized = true;
+
+            Array.Clear(_seed, 0, length);
 
             _remaining = _reseedInterval;
         }

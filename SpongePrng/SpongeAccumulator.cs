@@ -174,9 +174,6 @@ namespace SpongePrng
 
         IEnumerable<int> RoundRobinSchedule(int n)
         {
-            if (n < 1 || n >= byte.MaxValue)
-                throw new ArgumentOutOfRangeException("n");
-
             for (; ; )
             {
                 for (var i = 0; i < n; ++i)

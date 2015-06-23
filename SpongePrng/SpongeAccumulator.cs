@@ -31,7 +31,6 @@ namespace SpongePrng
         // and http://eprint.iacr.org/2014/167
 
         const int ByteCapacity = (int)Keccak1600Sponge.BitCapacity.Security512 / 8;
-        const int PoolCount = 27;
         const int RngReseedBytes = 16 * 1024 * 1024;
 
         // Lock order (don't acquire lock N when holding any locks > N)
@@ -40,7 +39,7 @@ namespace SpongePrng
         //    3. rng
 
         readonly object _accumulatorLock = new object();
-        readonly IEntropyExtractor[] _extractors = new IEntropyExtractor[PoolCount];
+        readonly IEntropyExtractor[] _extractors;
         readonly ChaCha20 _rng = new ChaCha20();
         readonly object _rngLock = new object();
         readonly IEnumerator<int> _schedule;
@@ -50,24 +49,38 @@ namespace SpongePrng
         int _rngBytes;
         long _stirCount;
 
-        public SpongeAccumulator(byte[] key, int offset, int length, IEntropyExtractorFactory entropyExtractorFactory)
+        public SpongeAccumulator(byte[] key, int offset, int length, int pools, IEntropyExtractorFactory entropyExtractorFactory)
         {
-            _sponge.Absorb(key, offset, length);
+            if (null == key)
+                throw new ArgumentNullException("key");
+            if (offset < 0 || offset > key.Length)
+                throw new ArgumentOutOfRangeException("offset");
+            if (length < 0 || length + offset > key.Length)
+                throw new ArgumentOutOfRangeException("length");
+            if (pools < 1)
+                throw new ArgumentOutOfRangeException("pools");
 
-            for (var i = 0; i < PoolCount; ++i)
+            _extractors = new IEntropyExtractor[pools];
+
+            if (length > 0)
+                _sponge.Absorb(key, offset, length);
+
+            for (var i = 0; i < _extractors.Length; ++i)
             {
-                _sponge.Squeeze(_state, 0, _state.Length);
+                if (length > 0)
+                    _sponge.Squeeze(_state, 0, _state.Length);
 
-                _extractors[i] = entropyExtractorFactory.Create(_state, 0, _state.Length);
+                _extractors[i] = entropyExtractorFactory.Create(_state, 0, length > 0 ? _state.Length : 0);
             }
 
-            _sponge.IrreversibleReabsorb(_state);
+            if (length > 0)
+                _sponge.IrreversibleReabsorb(_state);
 
             Reseed();
 
             _rngBytes = RngReseedBytes;
 
-            _schedule = PermutationSchedule(PoolCount).GetEnumerator();
+            _schedule = PermutationSchedule(_extractors.Length).GetEnumerator();
         }
 
         public void Dispose()
@@ -101,7 +114,7 @@ namespace SpongePrng
             var n = ++_stirCount;
             var mask = 0;
 
-            for (var i = 0; i < PoolCount; ++i)
+            for (var i = 0; i < _extractors.Length; ++i)
             {
                 var extractor = _extractors[i];
 

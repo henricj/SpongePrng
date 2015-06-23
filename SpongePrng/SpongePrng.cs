@@ -28,7 +28,7 @@ namespace SpongePrng
 
         public SpongePrng(byte[] key, int offset, int length)
         {
-            _accumulator = new SpongeAccumulator(key, offset, length, new SpongeExtractorFactory());
+            _accumulator = new SpongeAccumulator(key, offset, length, 27, new SpongeExtractorFactory());
         }
 
         public void Dispose()

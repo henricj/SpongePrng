@@ -56,13 +56,15 @@
   <ItemGroup>
     <Compile Include="ChaCha20Generator.cs" />
     <Compile Include="IEntropyExtractor.cs" />
-    <Compile Include="IPrng.cs" />
+    <Compile Include="IRandomGenerator.cs" />
     <Compile Include="KeccakExtensions.cs" />
+    <Compile Include="Prng.cs" />
+    <Compile Include="RandomGeneratorExtensions.cs" />
     <Compile Include="SpongeExtractor.cs" />
     <Compile Include="SpongeAccumulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpongeGenerator.cs" />
-    <Compile Include="SpongePrng.cs" />
+    <Compile Include="SpongeRandomGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KeccakSponge\KeccakSponge.vcxproj">

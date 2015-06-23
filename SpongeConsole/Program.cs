@@ -19,6 +19,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -130,7 +131,7 @@ namespace SpongeConsole
 
             using (var rng = RandomNumberGenerator.Create())
             {
-                using (var spongePrng = new SpongePrng.SpongePrng(h1, 0, h1.Length))
+                using (var generator = new SpongePrng.SpongeRandomGenerator(h1, 0, h1.Length))
                 {
                     var addTask = Task.Run(() => Parallel.For(0, 2,
                         n =>
@@ -145,11 +146,11 @@ namespace SpongeConsole
                                                    {
                                                        var buffer = BitConverter.GetBytes(i);
 
-                                                       spongePrng.AddEntropy(buffer, 0, buffer.Length);
+                                                       generator.Reseed(buffer, 0, buffer.Length);
 
                                                        rng.GetBytes(rngBuffer);
 
-                                                       spongePrng.AddEntropy(rngBuffer, 0, rngBuffer.Length);
+                                                       generator.Reseed(rngBuffer, 0, rngBuffer.Length);
                                                    }
                                                });
 
@@ -166,7 +167,7 @@ namespace SpongeConsole
                                                    var outputBuffer = new byte[64];
 
                                                    for (var i = 0; i < 1 * 256; ++i)
-                                                       spongePrng.Read(outputBuffer, 0, outputBuffer.Length);
+                                                       generator.Read(outputBuffer, 0, outputBuffer.Length);
                                                });
 
                             Console.WriteLine("Get Done: " + n);
@@ -174,25 +175,75 @@ namespace SpongeConsole
 
                     Task.WaitAll(addTask, getTask);
 
-                    using (var fast = spongePrng.CreateFastPrng())
-                    {
-                        var buffer = new byte[8 * 1024];
-
-                        for (var i = 0; i < 100; ++i)
-                            fast.Read(buffer, 0, buffer.Length);
-                    }
-
-                    using (var slow = spongePrng.CreateSlowPrng())
-                    {
-                        var buffer = new byte[8 * 1024];
-
-                        for (var i = 0; i < 100; ++i)
-                            slow.Read(buffer, 0, buffer.Length);
-                    }
+                    CheckPrngs(generator);
 
                     Console.WriteLine("Done");
                 }
             }
+        }
+
+        static void CheckPrngs(SpongeRandomGenerator generator)
+        {
+            var buffer = new byte[1024 * 1024];
+            const int repeat = 512;
+
+            var sw = new Stopwatch();
+
+            using (var prng = generator.CreateFastPrng())
+            {
+                prng.Read(buffer, 0, buffer.Length);
+
+                sw.Restart();
+
+                for (var i = 0; i < repeat; ++i)
+                    prng.Read(buffer, 0, buffer.Length);
+
+                sw.Stop();
+            }
+
+            Console.WriteLine("Fast: {0:F3}MB/s", repeat / sw.Elapsed.TotalSeconds);
+
+            using (var prng = generator.CreateSlowPrng())
+            {
+                prng.Read(buffer, 0, buffer.Length);
+
+                sw.Restart();
+
+                for (var i = 0; i < repeat; ++i)
+                    prng.Read(buffer, 0, buffer.Length);
+
+                sw.Stop();
+            }
+
+            Console.WriteLine("Slow (default): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
+
+            using (var prng = generator.CreateSlowPrng(Keccak1600Sponge.BitCapacity.Security512, 4096))
+            {
+                prng.Read(buffer, 0, buffer.Length);
+
+                sw.Restart();
+
+                for (var i = 0; i < repeat; ++i)
+                    prng.Read(buffer, 0, buffer.Length);
+
+                sw.Stop();
+            }
+
+            Console.WriteLine("Slow (512 bit/4k reseed): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
+
+            using (var prng = generator.CreateSlowPrng((int)Keccak1600Sponge.BitCapacity.Security256 / 2, 4 * 1024 * 1024))
+            {
+                prng.Read(buffer, 0, buffer.Length);
+
+                sw.Restart();
+
+                for (var i = 0; i < repeat; ++i)
+                    prng.Read(buffer, 0, buffer.Length);
+
+                sw.Stop();
+            }
+
+            Console.WriteLine("Slow (128 bit/4M reseed): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
         }
 
         static void Main(string[] args)

@@ -30,7 +30,7 @@ namespace SpongePrng
         // See https://www.schneier.com/fortuna.html
         // and http://eprint.iacr.org/2014/167
 
-        const int ByteCapacity = (int)Keccak1600Sponge.BitCapacity.Security512 / 8;
+        public const int ByteCapacity = (int)Keccak1600Sponge.BitCapacity.Security512 / 8;
         const int RngReseedBytes = 16 * 1024 * 1024;
 
         // Lock order (don't acquire lock N when holding any locks > N)

@@ -18,54 +18,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using Keccak;
+using System;
 
 namespace SpongePrng
 {
-    public sealed class SpongeGenerator : IRandomGenerator
+    public interface IRandomGenerator : IDisposable
     {
-        readonly byte[] _seed;
-        readonly Keccak1600Sponge _sponge;
+        int NaturalSeedLength { get; }
 
-        public SpongeGenerator(int bitCapacity)
-        {
-            _seed = new byte[bitCapacity / 8];
-
-            _sponge = new Keccak1600Sponge(bitCapacity);
-        }
-
-        public void Dispose()
-        {
-            _sponge.Dispose();
-        }
-
-        public int NaturalSeedLength
-        {
-            get { return _sponge.Capacity / (2 * 8); }
-        }
-
-        public int Read(byte[] buffer, int offset, int length)
-        {
-            if (length < 1)
-                return 0;
-
-            try
-            {
-                _sponge.Squeeze(buffer, offset, length);
-            }
-            finally
-            {
-                _sponge.IrreversibleReabsorb(_seed);
-            }
-
-            return length;
-        }
-
-        public void Reseed(byte[] seed, int offset, int length)
-        {
-            _sponge.Reabsorb();
-
-            _sponge.Absorb(seed, offset, length);
-        }
+        int Read(byte[] buffer, int offset, int length);
+        void Reseed(byte[] seed, int offset, int length);
     }
 }

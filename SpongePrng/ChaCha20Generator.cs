@@ -23,25 +23,15 @@ using Keccak;
 
 namespace SpongePrng
 {
-    public sealed class ChaCha20Generator : IPrng
+    public sealed class ChaCha20Generator : IRandomGenerator
     {
         readonly ChaCha20 _chaCha20 = new ChaCha20();
-        readonly IPrng _parent;
-        readonly int _reseedInterval;
-        readonly byte[] _seed = new byte[256 / 8];
+        readonly byte[] _key = new byte[256 / 8];
         bool _isInitialized;
-        int _remaining;
 
-        public ChaCha20Generator(IPrng parent, int reseedInterval = 4 * 1024 * 1024)
+        public static int NaturalSeedLength
         {
-            if (null == parent)
-                throw new ArgumentNullException("parent");
-
-            if (reseedInterval < 256)
-                reseedInterval = 256;
-
-            _parent = parent;
-            _reseedInterval = reseedInterval;
+            get { return 256 / 8; }
         }
 
         public void Dispose()
@@ -49,56 +39,49 @@ namespace SpongePrng
             _chaCha20.Dispose();
         }
 
+        int IRandomGenerator.NaturalSeedLength
+        {
+            get { return NaturalSeedLength; }
+        }
+
         public int Read(byte[] buffer, int offset, int length)
         {
+            if (!_isInitialized)
+                throw new InvalidOperationException("Generator is not initialized");
+
             if (length < 1)
                 return 0;
 
-            while (length > 0)
-            {
-                var blockLength = Math.Min(length, _remaining);
+            _chaCha20.GetKeystream(buffer, offset, length);
 
-                if (blockLength < 1)
-                {
-                    Reseed();
+            _chaCha20.GetKeystream(_key, 0, _key.Length);
 
-                    continue;
-                }
-
-                _chaCha20.GetKeystream(buffer, offset, blockLength);
-
-                offset += blockLength;
-                length -= blockLength;
-                _remaining -= blockLength;
-            }
-
-            _chaCha20.GetKeystream(_seed, 0, _seed.Length);
-
-            _chaCha20.Initialize(_seed, 0, _seed.Length);
-
-            Array.Clear(_seed, 0, _seed.Length);
+            _chaCha20.Initialize(_key, 0, _key.Length);
+            Array.Clear(_key, 0, _key.Length);
 
             return length;
         }
 
-        public void Reseed()
+        public void Reseed(byte[] key, int offset, int length)
         {
-            var length = _parent.Read(_seed, 0, _seed.Length);
+            if (null == key)
+                throw new ArgumentNullException("key");
+            if (offset < 0 || offset > key.Length)
+                throw new ArgumentOutOfRangeException("offset");
+            if (256 / 8 != length || key.Length != length + offset)
+                throw new ArgumentOutOfRangeException("length");
 
             if (_isInitialized)
             {
-                // This assumes that the encryption function behaves itself when
-                // the input and output buffers are the same.
-                _chaCha20.Encrypt(_seed, 0, _seed, 0, _seed.Length);
+                _chaCha20.Encrypt(key, offset, _key, 0, length);
+                _chaCha20.Initialize(_key, 0, _key.Length);
+                Array.Clear(_key, 0, _key.Length);
             }
-
-            _chaCha20.Initialize(_seed, 0, length);
-
-            _isInitialized = true;
-
-            Array.Clear(_seed, 0, length);
-
-            _remaining = _reseedInterval;
+            else
+            {
+                _chaCha20.Initialize(key, offset, length);
+                _isInitialized = true;
+            }
         }
     }
 }

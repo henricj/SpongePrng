@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Keccak;
 using SpongePrng;
+using SpongePrng.Fortuna;
 
 namespace SpongeConsole
 {
@@ -188,6 +189,22 @@ namespace SpongeConsole
             const int repeat = 512;
 
             var sw = new Stopwatch();
+
+            using (var prng = new Prng(new FortunaAesGenerator(), generator, 4 * 1024 * 1024))
+            {
+                prng.Reseed();
+
+                prng.Read(buffer, 0, buffer.Length);
+
+                sw.Restart();
+
+                for (var i = 0; i < repeat; ++i)
+                    prng.Read(buffer, 0, buffer.Length);
+
+                sw.Stop();
+            }
+
+            Console.WriteLine("FortunaAES (4M reseed): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
 
             using (var prng = generator.CreateFastPrng())
             {

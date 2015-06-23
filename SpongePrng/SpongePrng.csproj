@@ -55,9 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChaCha20Generator.cs" />
+    <Compile Include="Fortuna\FortunaAesGenerator.cs" />
     <Compile Include="IEntropyExtractor.cs" />
     <Compile Include="IRandomGenerator.cs" />
     <Compile Include="KeccakExtensions.cs" />
+    <Compile Include="Fortuna\ShaDouble256.cs" />
     <Compile Include="Prng.cs" />
     <Compile Include="RandomGeneratorExtensions.cs" />
     <Compile Include="SpongeExtractor.cs" />

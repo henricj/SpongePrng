@@ -16,3 +16,5 @@ These papers may also be relevant:
 [Cryptographic Extraction and Key Derivation: The HKDF Scheme](http://eprint.iacr.org/2010/264)
 
 [NIST SP 800-108 Recommendation for Key Derivation Using Pseudorandom Functions](http://csrc.nist.gov/publications/nistpubs/800-108/sp800-108.pdf)
+
+More can be found [here](http://henric.org/random/#other).

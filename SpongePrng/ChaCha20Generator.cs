@@ -68,7 +68,7 @@ namespace SpongePrng
                 throw new ArgumentNullException("key");
             if (offset < 0 || offset > key.Length)
                 throw new ArgumentOutOfRangeException("offset");
-            if (256 / 8 != length || key.Length != length + offset)
+            if (256 / 8 != length || length + offset > key.Length)
                 throw new ArgumentOutOfRangeException("length");
 
             if (_isInitialized)

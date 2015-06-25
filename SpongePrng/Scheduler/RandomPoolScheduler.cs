@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015 Henric Jungheim <software@henric.org>
+// Copyright (c) 2015 Henric Jungheim <software@henric.org>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,39 +18,37 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using SpongePrng.Scheduler;
+using System;
+using System.Collections.Generic;
 
-namespace SpongePrng
+namespace SpongePrng.Scheduler
 {
-    public class SpongeRandomGenerator : IRandomGenerator
+    public class RandomPoolScheduler : PoolSchedulerBase
     {
-        readonly SpongeAccumulator _accumulator;
-        readonly ChaCha20Generator _chaCha20Generator = new ChaCha20Generator();
+        public RandomPoolScheduler(IRandomGenerator randomGenerator)
+            : base(randomGenerator)
+        { }
 
-        public SpongeRandomGenerator(byte[] key, int offset, int length)
+        public override IEnumerable<int> Schedule(int n)
         {
-            _accumulator = new SpongeAccumulator(key, offset, length, 27, new SpongeExtractorFactory(), new PermutationPoolScheduler(_chaCha20Generator));
-        }
+            if (n < 1 || n >= byte.MaxValue)
+                throw new ArgumentOutOfRangeException("n");
 
-        public void Dispose()
-        {
-            _accumulator.Dispose();
-            _chaCha20Generator.Dispose();
-        }
+            var mask = 0;
 
-        public int NaturalSeedLength
-        {
-            get { return SpongeAccumulator.ByteCapacity / 2; }
-        }
+            while (mask < n)
+            {
+                mask <<= 1;
+                mask |= 1;
+            }
 
-        public int Read(byte[] buffer, int offset, int length)
-        {
-            return _accumulator.GetEntropy(buffer, offset, length);
-        }
+            for (; ; )
+            {
+                var b = GetRandomByte() & mask;
 
-        public void Reseed(byte[] entropy, int offset, int length)
-        {
-            _accumulator.AddEntropy(entropy, offset, length);
+                if (b < n)
+                    yield return b;
+            }
         }
     }
 }

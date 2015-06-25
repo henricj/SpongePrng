@@ -57,11 +57,16 @@
     <Compile Include="ChaCha20Generator.cs" />
     <Compile Include="Fortuna\FortunaAesGenerator.cs" />
     <Compile Include="IEntropyExtractor.cs" />
+    <Compile Include="Scheduler\IPoolScheduler.cs" />
     <Compile Include="IRandomGenerator.cs" />
     <Compile Include="KeccakExtensions.cs" />
     <Compile Include="Fortuna\ShaDouble256.cs" />
+    <Compile Include="Scheduler\PermutationPoolScheduler.cs" />
+    <Compile Include="Scheduler\PoolSchedulerBase.cs" />
     <Compile Include="Prng.cs" />
     <Compile Include="RandomGeneratorExtensions.cs" />
+    <Compile Include="Scheduler\RandomPoolScheduler.cs" />
+    <Compile Include="Scheduler\RoundRobinPoolScheduler.cs" />
     <Compile Include="SpongeExtractor.cs" />
     <Compile Include="SpongeAccumulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

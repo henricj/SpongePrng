@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015 Henric Jungheim <software@henric.org>
+// Copyright (c) 2015 Henric Jungheim <software@henric.org>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -18,39 +18,23 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using SpongePrng.Scheduler;
+using System.Collections.Generic;
 
-namespace SpongePrng
+namespace SpongePrng.Scheduler
 {
-    public class SpongeRandomGenerator : IRandomGenerator
+    public class RoundRobinPoolScheduler : PoolSchedulerBase
     {
-        readonly SpongeAccumulator _accumulator;
-        readonly ChaCha20Generator _chaCha20Generator = new ChaCha20Generator();
+        public RoundRobinPoolScheduler(IRandomGenerator randomGenerator)
+            : base(randomGenerator)
+        { }
 
-        public SpongeRandomGenerator(byte[] key, int offset, int length)
+        public override IEnumerable<int> Schedule(int n)
         {
-            _accumulator = new SpongeAccumulator(key, offset, length, 27, new SpongeExtractorFactory(), new PermutationPoolScheduler(_chaCha20Generator));
-        }
-
-        public void Dispose()
-        {
-            _accumulator.Dispose();
-            _chaCha20Generator.Dispose();
-        }
-
-        public int NaturalSeedLength
-        {
-            get { return SpongeAccumulator.ByteCapacity / 2; }
-        }
-
-        public int Read(byte[] buffer, int offset, int length)
-        {
-            return _accumulator.GetEntropy(buffer, offset, length);
-        }
-
-        public void Reseed(byte[] entropy, int offset, int length)
-        {
-            _accumulator.AddEntropy(entropy, offset, length);
+            for (; ; )
+            {
+                for (var i = 0; i < n; ++i)
+                    yield return i;
+            }
         }
     }
 }

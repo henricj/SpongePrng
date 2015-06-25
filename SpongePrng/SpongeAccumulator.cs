@@ -20,8 +20,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Keccak;
+using SpongePrng.Scheduler;
 
 namespace SpongePrng
 {
@@ -31,28 +31,28 @@ namespace SpongePrng
         // and http://eprint.iacr.org/2014/167
 
         public const int ByteCapacity = (int)Keccak1600Sponge.BitCapacity.Security512 / 8;
-        const int RngReseedBytes = 16 * 1024 * 1024;
 
         // Lock order (don't acquire lock N when holding any locks > N)
         //    1. accumulator
         //    2. schedule
-        //    3. rng
 
         readonly object _accumulatorLock = new object();
         readonly IEntropyExtractor[] _extractors;
-        readonly ChaCha20 _rng = new ChaCha20();
-        readonly object _rngLock = new object();
         readonly IEnumerator<int> _schedule;
         readonly object _scheduleLock = new object();
+        readonly IPoolScheduler _scheduler;
         readonly Keccak1600Sponge _sponge = new Keccak1600Sponge(8 * ByteCapacity);
         readonly byte[] _state = new byte[ByteCapacity];
-        int _rngBytes;
         long _stirCount;
 
-        public SpongeAccumulator(byte[] key, int offset, int length, int pools, IEntropyExtractorFactory entropyExtractorFactory)
+        public SpongeAccumulator(byte[] key, int offset, int length, int pools, IEntropyExtractorFactory entropyExtractorFactory, IPoolScheduler scheduler)
         {
             if (null == key)
                 throw new ArgumentNullException("key");
+            if (null == entropyExtractorFactory)
+                throw new ArgumentNullException("entropyExtractorFactory");
+            if (null == scheduler)
+                throw new ArgumentNullException("scheduler");
             if (offset < 0 || offset > key.Length)
                 throw new ArgumentOutOfRangeException("offset");
             if (length < 0 || length + offset > key.Length)
@@ -60,6 +60,7 @@ namespace SpongePrng
             if (pools < 1)
                 throw new ArgumentOutOfRangeException("pools");
 
+            _scheduler = scheduler;
             _extractors = new IEntropyExtractor[pools];
 
             if (length > 0)
@@ -78,15 +79,11 @@ namespace SpongePrng
 
             Reseed();
 
-            _rngBytes = RngReseedBytes;
-
-            _schedule = PermutationSchedule(_extractors.Length).GetEnumerator();
+            _schedule = scheduler.Schedule(_extractors.Length).GetEnumerator();
         }
 
         public void Dispose()
         {
-            _rng.Dispose();
-
             if (null == _extractors)
                 return;
 
@@ -133,9 +130,9 @@ namespace SpongePrng
 
             var needReseed = false;
 
-            lock (_rngLock)
+            lock (_scheduleLock)
             {
-                if (_rngBytes >= RngReseedBytes)
+                if (_scheduler.NeedReseed)
                     needReseed = true;
             }
 
@@ -145,14 +142,13 @@ namespace SpongePrng
 
         void Reseed()
         {
-            const int seedLength = 256 / 8;
+            var seedLength = Math.Min(_state.Length, _scheduler.NaturalSeedLength);
 
             _sponge.Squeeze(_state, 0, seedLength);
 
-            lock (_rngLock)
+            lock (_scheduleLock)
             {
-                _rng.Initialize(_state, 0, seedLength);
-                _rngBytes = 0;
+                _scheduler.Reseed(_state, 0, seedLength);
             }
         }
 
@@ -182,87 +178,5 @@ namespace SpongePrng
 
             return length;
         }
-
-        #region Schedulers
-
-        IEnumerable<int> RoundRobinSchedule(int n)
-        {
-            for (; ; )
-            {
-                for (var i = 0; i < n; ++i)
-                    yield return i;
-            }
-        }
-
-        IEnumerable<int> RandomSchedule(int n)
-        {
-            if (n < 1 || n >= byte.MaxValue)
-                throw new ArgumentOutOfRangeException("n");
-
-            var block = new byte[512];
-
-            for (; ; )
-            {
-                GetRngBytes(block);
-
-                foreach (var b in block)
-                {
-                    if (b < n)
-                        yield return b;
-                }
-            }
-        }
-
-        IEnumerable<int> PermutationSchedule(int n)
-        {
-            if (n < 1 || n >= byte.MaxValue)
-                throw new ArgumentOutOfRangeException("n");
-
-            var order = Enumerable.Range(0, n).ToArray();
-
-            var block = new byte[512];
-
-            for (; ; )
-            {
-                var i = order.Length - 1;
-
-                while (i > 0)
-                {
-                    GetRngBytes(block);
-
-                    // Fisher-Yates Shuffle
-                    foreach (var b in block)
-                    {
-                        if (b > i)
-                            continue;
-
-                        var tmp = order[b];
-                        order[b] = order[i];
-                        order[i] = tmp;
-
-                        if (--i <= 0)
-                            break;
-                    }
-                }
-
-                // We now have a shuffled order.
-
-                foreach (var o in order)
-                    yield return o;
-            }
-        }
-
-        void GetRngBytes(byte[] block)
-        {
-            lock (_rngLock)
-            {
-                _rng.GetKeystream(block, 0, block.Length);
-
-                if (_rngBytes < RngReseedBytes)
-                    _rngBytes += block.Length;
-            }
-        }
-
-        #endregion Schedulers
     }
 }

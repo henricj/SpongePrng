@@ -117,9 +117,9 @@ namespace SpongePrng
 
                 var length = Math.Min(extractor.ByteCapacity, _state.Length);
 
-                extractor.Read(_state, 0, length);
+                var actualLength = extractor.Read(_state, 0, length);
 
-                _sponge.Absorb(_state, 0, length);
+                _sponge.Absorb(_state, 0, actualLength);
 
                 mask <<= 1;
                 mask |= 1;

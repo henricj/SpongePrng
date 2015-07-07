@@ -27,7 +27,7 @@ namespace SpongePrng
         int ByteCapacity { get; }
         void Reset(byte[] key, int offset, int length);
         void AddEntropy(byte[] entropy, int offset, int length);
-        void Read(byte[] buffer, int offset, int length);
+        int Read(byte[] buffer, int offset, int length);
     }
 
     public interface IEntropyExtractorFactory

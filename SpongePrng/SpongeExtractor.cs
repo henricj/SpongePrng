@@ -73,7 +73,7 @@ namespace SpongePrng
             }
         }
 
-        public void Read(byte[] buffer, int offset, int length)
+        public int Read(byte[] buffer, int offset, int length)
         {
             lock (_lock)
             {
@@ -85,6 +85,8 @@ namespace SpongePrng
 
                 _sponge.IrreversibleReabsorb(_state);
             }
+
+            return length;
         }
 
         void Stir()

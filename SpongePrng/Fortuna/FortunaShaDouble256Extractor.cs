@@ -24,6 +24,7 @@ namespace SpongePrng.Fortuna
 {
     public sealed class FortunaShaDouble256Extractor : IEntropyExtractor
     {
+        readonly object _lock = new object();
         readonly ShaDouble256 _shaDouble256 = new ShaDouble256();
 
         public void Dispose()
@@ -38,22 +39,33 @@ namespace SpongePrng.Fortuna
 
         public void Reset(byte[] key, int offset, int length)
         {
-            _shaDouble256.Initialize();
+            lock (_lock)
+            {
+                _shaDouble256.Initialize();
 
-            if (null != key && length > 0)
-                _shaDouble256.TransformBlock(key, offset, length);
+                if (null != key && length > 0)
+                    _shaDouble256.TransformBlock(key, offset, length);
+            }
         }
 
         public void AddEntropy(byte[] entropy, int offset, int length)
         {
-            _shaDouble256.TransformBlock(entropy, offset, length);
+            lock (_lock)
+            {
+                _shaDouble256.TransformBlock(entropy, offset, length);
+            }
         }
 
         public int Read(byte[] buffer, int offset, int length)
         {
-            _shaDouble256.TransformFinalBlock(null, 0, 0);
+            byte[] hash;
 
-            var hash = _shaDouble256.Hash;
+            lock (_lock)
+            {
+                _shaDouble256.TransformFinalBlock(null, 0, 0);
+
+                hash = _shaDouble256.Hash;
+            }
 
             var readLength = Math.Min(length, hash.Length);
 

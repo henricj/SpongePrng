@@ -50,7 +50,7 @@ namespace SpongePrng.Fortuna
             _aes.Dispose();
         }
 
-        public int NaturalSeedLength { get; private set; }
+        public int NaturalSeedLength { get { return _key.Length; } }
 
         public int Read(byte[] buffer, int offset, int length)
         {

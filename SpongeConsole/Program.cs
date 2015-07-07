@@ -74,7 +74,7 @@ namespace SpongeConsole
             //            minTime = elapsed;
             //    }
 
-            //    Console.WriteLine("ChaCha20 MinTime: {0} MB/s: {1:F3}", minTime, buffer.Length * repeat / minTime.TotalSeconds / (1024 * 1024));
+            //    Console.WriteLine("ChaCha20 MinTime: {0} MB/s: {1:F2}", minTime, buffer.Length * repeat / minTime.TotalSeconds / (1024 * 1024));
 
             //}
 
@@ -107,7 +107,7 @@ namespace SpongeConsole
             //            minTime = elapsed;
             //    }
 
-            //    Console.WriteLine("MinTime: {0} MB/s: {1:F3}", minTime, buffer.Length * repeat / minTime.TotalSeconds / (1024 * 1024));
+            //    Console.WriteLine("MinTime: {0} MB/s: {1:F2}", minTime, buffer.Length * repeat / minTime.TotalSeconds / (1024 * 1024));
             //}
 
             //return;
@@ -183,14 +183,14 @@ namespace SpongeConsole
             }
         }
 
-        static void CheckPrngs(SpongeRandomGenerator generator)
+        static void CheckPrngs(SpongeRandomGenerator entropySource)
         {
             var buffer = new byte[1024 * 1024];
             const int repeat = 512;
 
             var sw = new Stopwatch();
 
-            using (var prng = new Prng(new FortunaAesGenerator(), generator, 4 * 1024 * 1024))
+            using (var prng = new Prng(new FortunaAesGenerator(), entropySource, 4 * 1024 * 1024))
             {
                 prng.Reseed();
 
@@ -204,9 +204,9 @@ namespace SpongeConsole
                 sw.Stop();
             }
 
-            Console.WriteLine("FortunaAES (4M reseed): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
+            Console.WriteLine("FortunaAES (4M reseed): {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
 
-            using (var prng = generator.CreateFastPrng())
+            using (var prng = entropySource.CreateFastPrng())
             {
                 prng.Read(buffer, 0, buffer.Length);
 
@@ -218,9 +218,9 @@ namespace SpongeConsole
                 sw.Stop();
             }
 
-            Console.WriteLine("Fast: {0:F3}MB/s", repeat / sw.Elapsed.TotalSeconds);
+            Console.WriteLine("Fast: {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
 
-            using (var prng = generator.CreateSlowPrng())
+            using (var prng = entropySource.CreateSlowPrng())
             {
                 prng.Read(buffer, 0, buffer.Length);
 
@@ -232,9 +232,9 @@ namespace SpongeConsole
                 sw.Stop();
             }
 
-            Console.WriteLine("Slow (default): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
+            Console.WriteLine("Slow (default): {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
 
-            using (var prng = generator.CreateSlowPrng(Keccak1600Sponge.BitCapacity.Security512, 4096))
+            using (var prng = entropySource.CreateSlowPrng(Keccak1600Sponge.BitCapacity.Security512, 4096))
             {
                 prng.Read(buffer, 0, buffer.Length);
 
@@ -246,9 +246,9 @@ namespace SpongeConsole
                 sw.Stop();
             }
 
-            Console.WriteLine("Slow (512 bit/4k reseed): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
+            Console.WriteLine("Slow (512 bit/4k reseed): {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
 
-            using (var prng = generator.CreateSlowPrng((int)Keccak1600Sponge.BitCapacity.Security256 / 2, 4 * 1024 * 1024))
+            using (var prng = entropySource.CreateSlowPrng(Keccak1600Sponge.BitCapacity.Security256, 1024 * 1024))
             {
                 prng.Read(buffer, 0, buffer.Length);
 
@@ -260,7 +260,35 @@ namespace SpongeConsole
                 sw.Stop();
             }
 
-            Console.WriteLine("Slow (128 bit/4M reseed): {0:F3} per MB", repeat / sw.Elapsed.TotalSeconds);
+            Console.WriteLine("Slow (256 bit/1M reseed): {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
+
+            using (var prng = entropySource.CreateSlowPrng((int)Keccak1600Sponge.BitCapacity.Security256 / 2, 4 * 1024 * 1024))
+            {
+                prng.Read(buffer, 0, buffer.Length);
+
+                sw.Restart();
+
+                for (var i = 0; i < repeat; ++i)
+                    prng.Read(buffer, 0, buffer.Length);
+
+                sw.Stop();
+            }
+
+            Console.WriteLine("Slow (128 bit/4M reseed): {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
+
+            //using (var prng = entropySource.CreateSlowPrng(1600 - 8, 1024))
+            //{
+            //    prng.Read(buffer, 0, buffer.Length);
+
+            //    sw.Restart();
+
+            //    for (var i = 0; i < repeat; ++i)
+            //        prng.Read(buffer, 0, buffer.Length);
+
+            //    sw.Stop();
+            //}
+
+            //Console.WriteLine("Silly Slow (1600-8 capacity/1k reseed): {0:F2} MB/s", repeat / sw.Elapsed.TotalSeconds);
         }
 
         static void Main(string[] args)

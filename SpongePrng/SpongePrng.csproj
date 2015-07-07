@@ -55,7 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChaCha20Generator.cs" />
+    <Compile Include="Fortuna\FortunaAccumulator.cs" />
+    <Compile Include="Fortuna\FortunaRandomGenerator.cs" />
     <Compile Include="Fortuna\FortunaAesGenerator.cs" />
+    <Compile Include="Fortuna\FortunaShaDouble256Extractor.cs" />
+    <Compile Include="Fortuna\FortunaShaDouble256ExtractorFactory.cs" />
     <Compile Include="IEntropyExtractor.cs" />
     <Compile Include="Scheduler\IPoolScheduler.cs" />
     <Compile Include="IRandomGenerator.cs" />

@@ -37,6 +37,7 @@ namespace SpongePrng
         //    2. schedule
 
         readonly object _accumulatorLock = new object();
+        readonly IEntropyExtractor _constantTimeExtractor;
         readonly IEntropyExtractor[] _extractors;
         readonly IEnumerator<int> _schedule;
         readonly object _scheduleLock = new object();
@@ -45,7 +46,7 @@ namespace SpongePrng
         readonly byte[] _state = new byte[ByteCapacity];
         long _stirCount;
 
-        public SpongeAccumulator(byte[] key, int offset, int length, int pools, IEntropyExtractorFactory entropyExtractorFactory, IPoolScheduler scheduler)
+        public SpongeAccumulator(byte[] key, int offset, int length, int pools, bool constantTimeStir, IEntropyExtractorFactory entropyExtractorFactory, IPoolScheduler scheduler)
         {
             if (null == key)
                 throw new ArgumentNullException("key");
@@ -72,6 +73,14 @@ namespace SpongePrng
                     _sponge.Squeeze(_state, 0, _state.Length);
 
                 _extractors[i] = entropyExtractorFactory.Create(_state, 0, length > 0 ? _state.Length : 0);
+            }
+
+            if (constantTimeStir)
+            {
+                if (length > 0)
+                    _sponge.Squeeze(_state, 0, _state.Length);
+
+                _constantTimeExtractor = entropyExtractorFactory.Create(_state, 0, length > 0 ? _state.Length : 0);
             }
 
             if (length > 0)
@@ -110,23 +119,25 @@ namespace SpongePrng
         {
             var n = ++_stirCount;
             var mask = 0;
+            var done = false;
 
             foreach (var extractor in _extractors)
             {
-                if (extractor.IsAvailable())
-                {
-                    var length = Math.Min(extractor.ByteCapacity, _state.Length);
-
-                    var actualLength = extractor.Read(_state, 0, length);
-
-                    _sponge.Absorb(_state, 0, actualLength);
-                }
+                if (!done && extractor.IsAvailable())
+                    Stir(extractor);
+                else if (null != _constantTimeExtractor)
+                    Stir(_constantTimeExtractor);
 
                 mask <<= 1;
                 mask |= 1;
 
                 if (0 != (n & mask))
-                    break;
+                {
+                    if (null == _constantTimeExtractor)
+                        break;
+
+                    done = true;
+                }
             }
 
             var needReseed = false;
@@ -139,6 +150,15 @@ namespace SpongePrng
 
             if (needReseed)
                 Reseed();
+        }
+
+        void Stir(IEntropyExtractor extractor)
+        {
+            var length = Math.Min(extractor.ByteCapacity, _state.Length);
+
+            var actualLength = extractor.Read(_state, 0, length);
+
+            _sponge.Absorb(_state, 0, actualLength);
         }
 
         void Reseed()

@@ -29,7 +29,7 @@ namespace SpongePrng
 
         public SpongeRandomGenerator(byte[] key, int offset, int length)
         {
-            _accumulator = new SpongeAccumulator(key, offset, length, 27, new SpongeExtractorFactory(), new PermutationPoolScheduler(_chaCha20Generator));
+            _accumulator = new SpongeAccumulator(key, offset, length, 27, true, new SpongeExtractorFactory(), new PermutationPoolScheduler(_chaCha20Generator));
         }
 
         public void Dispose()

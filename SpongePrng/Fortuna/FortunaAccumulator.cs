@@ -102,9 +102,12 @@ namespace SpongePrng.Fortuna
 
             foreach (var extractor in _extractors)
             {
-                var actualLength = extractor.Read(_state, length, 256 / 8);
+                if (extractor.IsAvailable())
+                {
+                    var actualLength = extractor.Read(_state, length, 256 / 8);
 
-                length += actualLength;
+                    length += actualLength;
+                }
 
                 mask <<= 1;
                 mask |= 1;

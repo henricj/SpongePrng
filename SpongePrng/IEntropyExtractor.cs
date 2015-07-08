@@ -24,6 +24,7 @@ namespace SpongePrng
 {
     public interface IEntropyExtractor : IDisposable
     {
+        int BytesWritten { get; }
         int ByteCapacity { get; }
         void Reset(byte[] key, int offset, int length);
         void AddEntropy(byte[] entropy, int offset, int length);
@@ -33,5 +34,13 @@ namespace SpongePrng
     public interface IEntropyExtractorFactory
     {
         IEntropyExtractor Create(byte[] key, int offset, int length);
+    }
+
+    public static class EntropyExtractorExtensions
+    {
+        public static bool IsAvailable(this IEntropyExtractor extractor)
+        {
+            return extractor.BytesWritten >= 64;
+        }
     }
 }

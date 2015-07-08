@@ -111,15 +111,16 @@ namespace SpongePrng
             var n = ++_stirCount;
             var mask = 0;
 
-            for (var i = 0; i < _extractors.Length; ++i)
+            foreach (var extractor in _extractors)
             {
-                var extractor = _extractors[i];
+                if (extractor.IsAvailable())
+                {
+                    var length = Math.Min(extractor.ByteCapacity, _state.Length);
 
-                var length = Math.Min(extractor.ByteCapacity, _state.Length);
+                    var actualLength = extractor.Read(_state, 0, length);
 
-                var actualLength = extractor.Read(_state, 0, length);
-
-                _sponge.Absorb(_state, 0, actualLength);
+                    _sponge.Absorb(_state, 0, actualLength);
+                }
 
                 mask <<= 1;
                 mask |= 1;

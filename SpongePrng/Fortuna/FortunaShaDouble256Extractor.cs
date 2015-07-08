@@ -26,10 +26,16 @@ namespace SpongePrng.Fortuna
     {
         readonly object _lock = new object();
         readonly ShaDouble256 _shaDouble256 = new ShaDouble256();
+        int _bytesWritten;
 
         public void Dispose()
         {
             _shaDouble256.Dispose();
+        }
+
+        public int BytesWritten
+        {
+            get { return _bytesWritten; }
         }
 
         public int ByteCapacity
@@ -41,6 +47,8 @@ namespace SpongePrng.Fortuna
         {
             lock (_lock)
             {
+                _bytesWritten = 0;
+
                 _shaDouble256.Initialize();
 
                 if (null != key && length > 0)
@@ -53,6 +61,8 @@ namespace SpongePrng.Fortuna
             lock (_lock)
             {
                 _shaDouble256.TransformBlock(entropy, offset, length);
+
+                _bytesWritten += length;
             }
         }
 
@@ -65,6 +75,8 @@ namespace SpongePrng.Fortuna
                 _shaDouble256.TransformFinalBlock(null, 0, 0);
 
                 hash = _shaDouble256.Hash;
+
+                _bytesWritten = 0;
             }
 
             var readLength = Math.Min(length, hash.Length);

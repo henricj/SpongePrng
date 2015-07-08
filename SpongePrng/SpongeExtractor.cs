@@ -31,11 +31,17 @@ namespace SpongePrng
         readonly Keccak1600Sponge _sponge = new Keccak1600Sponge(8 * Capacity);
         readonly byte[] _state = new byte[Capacity];
         long _addCount;
+        int _bytesWritten;
         long _readCount;
 
         public SpongeExtractor(byte[] key, int offset, int length)
         {
             Reset(key, offset, length);
+        }
+
+        public int BytesWritten
+        {
+            get { return _bytesWritten; }
         }
 
         public int ByteCapacity
@@ -60,6 +66,8 @@ namespace SpongePrng
 
                 _readCount = 0;
                 _addCount = 0;
+
+                _bytesWritten = 0;
             }
         }
 
@@ -70,6 +78,8 @@ namespace SpongePrng
                 ++_addCount;
 
                 _sponge.Absorb(entropy, offset, length);
+
+                _bytesWritten += length;
             }
         }
 
@@ -77,6 +87,8 @@ namespace SpongePrng
         {
             lock (_lock)
             {
+                _bytesWritten = 0;
+
                 ++_readCount;
 
                 Stir();
@@ -103,7 +115,7 @@ namespace SpongePrng
     {
         public IEntropyExtractor Create(byte[] key, int offset, int length)
         {
-            return new SpongeExtractor(key,offset, length);
+            return new SpongeExtractor(key, offset, length);
         }
     }
 }
